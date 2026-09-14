@@ -46,6 +46,6 @@ export default async function Home() {
               <h3 className="font-bold text-lg text-red-800">{ds.ten}</h3>
               <p className="text-gray-600 text-sm mt-1">{ds.mo_ta}</p>
               <div className="mt-3 bg-amber-50 rounded-lg p-2">
-                <p className="text-xs text-amber-700 font-medium">🎨 Hướng khai thác Mĩ thuật:</p>
+                <p className="text-xs text-amber-700 font-medium">Huong khai thac Mi thuat:</p>
                 <p className="text-xs text-gray-700 mt-1">{ds.huong_khai_thac}</p>
               </div>
