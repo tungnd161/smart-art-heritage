@@ -1,8 +1,12 @@
 import { createClient } from "@supabase/supabase-js"
 import Link from "next/link"
 
-export default async function DiSanDetail(props: any) {
-  const id = props.params.id
+type Props = {
+  params: Promise<{ id: string }>
+}
+
+export default async function DiSanDetail({ params }: Props) {
+  const { id } = await params
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,7 +35,7 @@ export default async function DiSanDetail(props: any) {
     <main className="min-h-screen bg-amber-50">
       <div className="bg-red-800 text-white text-center py-8">
         <h1 className="text-3xl font-bold">SMART ART HERITAGE</h1>
-        <p className="text-amber-200 mt-2">Kham pha di san Hung Yen qua Mi thuat</p>
+        <p className="text-amber-200 mt-2">Kham pha di san Hung Yen</p>
       </div>
 
       <div className="max-w-4xl mx-auto p-6">
