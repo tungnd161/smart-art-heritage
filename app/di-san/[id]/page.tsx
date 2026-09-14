@@ -6,11 +6,12 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-export default async function DiSanDetail({ params }: { params: { id: string } }) {
+export default async function DiSanDetail({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const { data: ds } = await supabase
     .from('di_san')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!ds) {
