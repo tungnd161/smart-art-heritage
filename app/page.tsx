@@ -1,13 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
 export default async function Home() {
-  const { data: diSan } = await supabase.from('di_san').select('*')
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  const { data: diSan, error } = await supabase.from('di_san').select('*')
+
+  console.log('diSan:', diSan, 'error:', error)
 
   return (
     <main className="min-h-screen bg-amber-50">
@@ -30,6 +32,10 @@ export default async function Home() {
       {/* Danh sách di sản */}
       <div className="max-w-4xl mx-auto p-6">
         <h2 className="text-xl font-bold text-red-800 mb-4">🗂 Kho Di Sản</h2>
+
+        {/* Debug: hiện số lượng */}
+        <p className="text-sm text-gray-500 mb-4">Tìm thấy: {diSan?.length ?? 0} di sản</p>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {diSan?.map((ds) => (
             <Link
@@ -43,14 +49,3 @@ export default async function Home() {
                 <p className="text-xs text-amber-700 font-medium">🎨 Hướng khai thác Mĩ thuật:</p>
                 <p className="text-xs text-gray-700 mt-1">{ds.huong_khai_thac}</p>
               </div>
-              <span className="inline-block mt-2 text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">
-                {ds.cum_di_san}
-              </span>
-              <p className="text-right text-xs text-red-600 mt-2 font-medium">Xem chi tiết →</p>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </main>
-  )
-}
