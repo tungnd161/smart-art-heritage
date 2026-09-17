@@ -10,17 +10,43 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Heritage palette */
+  --color-hr-red: #8B1A1A;
+  --color-hr-red-light: #f9ecec;
+  --color-hr-gold: #F5A623;
+  --color-hr-gold-light: #FFF8E1;
+  --color-hr-navy: #1A237E;
+  --color-hr-section: #EEF4FB;
+
+  /* Tech icons */
+  --color-tech-ai: #1565C0;
+  --color-tech-3d: #6A1B9A;
+  --color-tech-ar: #2E7D32;
+  --color-tech-web: #E65100;
+
+  /* Module row backgrounds */
+  --color-mod-xuong-bg: #FFF0F5;
+  --color-mod-xuong-border: #F48FB1;
+  --color-mod-ar-bg: #FFF8E1;
+  --color-mod-ar-border: #FFB300;
+  --color-mod-eval-bg: #F3F4FF;
+  --color-mod-eval-border: #9FA8DA;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Inter, Arial, Helvetica, sans-serif;
 }
+
+/* Utility: hide scrollbar but allow scroll */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
