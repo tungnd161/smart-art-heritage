@@ -1,103 +1,28 @@
-'use client'
-import { useEffect, useState } from 'react'
-
-const DI_SAN_MAP = [
-  { id: 1, ten: 'Phố Hiến', lat: 20.8468, lng: 106.0516, mo_ta: 'Đô thị thương cảng cổ thế kỷ 17', cum: 'Di tích lịch sử', mau: '🔴' },
-  { id: 2, ten: 'Văn Miếu Xích Đằng', lat: 20.8512, lng: 106.0498, mo_ta: 'Trung tâm giáo dục Nho học', cum: 'Di tích lịch sử', mau: '🔴' },
-  { id: 3, ten: 'Đền Trần Hưng Yên', lat: 20.6468, lng: 106.0516, mo_ta: 'Đền thờ các vua Trần', cum: 'Tín ngưỡng dân gian', mau: '🟡' },
-  { id: 4, ten: 'Chùa Chuông', lat: 20.8401, lng: 106.0523, mo_ta: 'Ngôi chùa cổ với chuông đồng lớn', cum: 'Tín ngưỡng dân gian', mau: '🟡' },
-  { id: 5, ten: 'Làng tranh Đông Hồ', lat: 21.0833, lng: 106.0833, mo_ta: 'Làng nghề tranh dân gian nổi tiếng', cum: 'Làng nghề thủ công', mau: '🟢' },
-]
+import Link from 'next/link'
+import { heritages } from '@/lib/heritage'
 
 export default function BanDo() {
-  const [MapComponent, setMapComponent] = useState(null)
-  const [diSanChon, setDiSanChon] = useState(null)
-
-  useEffect(() => {
-    // Load leaflet chỉ ở client (không load ở server)
-    import('leaflet').then(L => {
-      delete L.default.Icon.Default.prototype._getIconUrl
-      L.default.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-      })
-    })
-
-    import('react-leaflet').then(({ MapContainer, TileLayer, Marker, Popup }) => {
-      import('leaflet/dist/leaflet.css')
-      
-      const Map = () => (
-        <MapContainer 
-          center={[20.85, 106.05]} 
-          zoom={10} 
-          style={{ height: '100%', width: '100%' }}
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {DI_SAN_MAP.map(ds => (
-            <Marker key={ds.id} position={[ds.lat, ds.lng]}>
-              <Popup>
-                <div style={{ minWidth: 180 }}>
-                  <p style={{ fontWeight: 'bold', color: '#991b1b', margin: '0 0 4px' }}>
-                    {ds.mau} {ds.ten}
-                  </p>
-                  <p style={{ fontSize: 12, color: '#555', margin: '0 0 8px' }}>{ds.mo_ta}</p>
-                  <a href={`/ai-assistant?diSan=${encodeURIComponent(ds.ten)}`}
-                    style={{ background: '#991b1b', color: 'white', padding: '4px 10px', borderRadius: 6, fontSize: 12, textDecoration: 'none' }}>
-                    🎨 Bắt đầu sáng tạo →
-                  </a>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
-      )
-      setMapComponent(() => Map)
-    })
-  }, [])
-
   return (
-    <div className="min-h-screen bg-amber-50">
-      {/* Header */}
-      <div className="bg-red-800 text-white text-center py-6">
-        <h1 className="text-2xl font-bold">🗺️ Bản Đồ Di Sản Hưng Yên</h1>
-        <p className="text-amber-200 text-sm mt-1">Click vào điểm di sản để khám phá</p>
-      </div>
-
-      <div className="max-w-5xl mx-auto p-4">
-        {/* Chú thích */}
-        <div className="flex gap-4 mb-4 bg-white rounded-xl p-3 shadow text-sm flex-wrap">
-          <span>🔴 Di tích lịch sử</span>
-          <span>🟡 Tín ngưỡng dân gian</span>
-          <span>🟢 Làng nghề thủ công</span>
-        </div>
-
-        {/* Bản đồ */}
-        <div className="bg-white rounded-xl shadow overflow-hidden" style={{ height: 480 }}>
-          {MapComponent ? <MapComponent /> : (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              <p>Đang tải bản đồ...</p>
-            </div>
-          )}
-        </div>
-
-        {/* Danh sách nhanh */}
-        <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-2">
-          {DI_SAN_MAP.map(ds => (
-            <a key={ds.id} href={`/ai-assistant?diSan=${encodeURIComponent(ds.ten)}`}
-              className="bg-white rounded-lg p-3 shadow text-center hover:shadow-md transition-all hover:bg-red-50 cursor-pointer">
-              <p className="text-lg">{ds.mau}</p>
-              <p className="text-xs font-medium text-red-800 mt-1">{ds.ten}</p>
-            </a>
-          ))}
-        </div>
-
-        {/* Navigation */}
-        <div className="flex gap-4 mt-4 justify-center text-sm">
-          <a href="/" className="text-red-700 hover:underline">← Kho Di Sản</a>
-          <a href="/ai-assistant" className="text-red-700 hover:underline">🎨 AI Art Assistant →</a>
-        </div>
-      </div>
-    </div>
+    <main>
+      <header className="shell nav">
+        <Link className="brand" href="/">SMART ART HERITAGE · V1.0</Link>
+        <Link className="button ghost" href="/">Kho di sản</Link>
+      </header>
+      <section className="page-head"><div className="shell">
+        <div className="breadcrumbs">Trang chủ / Bản đồ di sản</div>
+        <div className="kicker">Điểm vào hành trình học tập</div>
+        <h1>Bản đồ di sản<br/>và các trục tạo hình.</h1>
+        <p className="lead">Chọn một cụm di sản để bắt đầu quan sát. Bản đồ V1 ưu tiên luồng học tập và dữ liệu đã kiểm chứng; tọa độ/đường đi chi tiết chỉ được thêm sau khi đối chiếu nguồn chính thức.</p>
+      </div></section>
+      <section className="content"><div className="shell">
+        <div className="notice" style={{marginBottom:24}}><strong>Hãy bắt đầu bằng điều em nhìn thấy.</strong><br/>Mỗi điểm dẫn tới hồ sơ, Hotspot, phiếu tổng kết 3–2–1 và sau đó mới mở AI 5A.</div>
+        <div className="grid">{heritages.map((heritage) => <article className="card" key={heritage.slug}>
+          <div className="heritage-code">ĐIỂM {heritage.code} · {heritage.cluster}</div>
+          <h3>{heritage.name}</h3><p>{heritage.summary}</p>
+          <div className="hotspot"><b>Góc nhìn Mĩ thuật</b>{heritage.artisticFocus}</div>
+          <Link className="link" href={`/di-san/${heritage.slug}`}>Mở hồ sơ & bắt đầu quan sát →</Link>
+        </article>)}</div>
+      </div></section>
+    </main>
   )
 }
