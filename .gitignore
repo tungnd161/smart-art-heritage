@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Never commit credential exports or copied secret files
+*API*key*.txt
+*Pass*.txt
+*Password*.txt
+!.env.example
