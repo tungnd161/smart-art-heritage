@@ -1,130 +1,37 @@
 'use client'
-import { useState } from 'react'
 
-const BUOC_5A = [
-  { key: 'A1', ten: 'Khám phá', mau: 'bg-indigo-500' },
-  { key: 'A2', ten: 'Phân tích', mau: 'bg-cyan-500' },
-  { key: 'A3', ten: 'Gợi ý', mau: 'bg-emerald-500' },
-  { key: 'A4', ten: 'Điều chỉnh', mau: 'bg-amber-500' },
-  { key: 'A5', ten: 'Sáng tạo', mau: 'bg-red-500' },
-]
+import Link from 'next/link'
+import { useMemo, useState } from 'react'
+import { heritages } from '@/lib/heritage'
 
-const DI_SAN = [
-  'Phố Hiến', 'Văn Miếu Xích Đằng', 'Đền Trần Hưng Yên', 
-  'Chùa Chuông', 'Làng tranh Đông Hồ'
+const steps = [
+  { key: 'A1', name: 'Hỏi', hint: 'Em muốn kể điều gì về di sản?' },
+  { key: 'A2', name: 'Phân tích', hint: 'Chọn chi tiết tạo hình làm căn cứ.' },
+  { key: 'A3', name: 'Gợi ý', hint: 'Khám phá các hướng thể hiện.' },
+  { key: 'A4', name: 'Điều chỉnh', hint: 'Chọn, biến đổi và lập kế hoạch.' },
+  { key: 'A5', name: 'Tác giả', hint: 'Xác nhận quyết định sáng tạo của em.' },
 ]
 
 export default function AIAssistant() {
-  const [messages, setMessages] = useState([])
-  const [input, setInput] = useState('')
-  const [buocHienTai, setBuocHienTai] = useState(0)
-  const [diSanChon, setDiSanChon] = useState('')
-  const [loading, setLoading] = useState(false)
-
-  const guiTin = async () => {
-    if (!input.trim() || loading) return
-    const tinMoi = { role: 'user', content: input }
-    const danhSachMoi = [...messages, tinMoi]
-    setMessages(danhSachMoi)
-    setInput('')
-    setLoading(true)
-
-    const res = await fetch('/api/ai-art', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: danhSachMoi, diSanTen: diSanChon })
-    })
-    const data = await res.json()
-    setMessages([...danhSachMoi, { role: 'assistant', content: data.reply }])
-    if (buocHienTai < 4) setBuocHienTai(buocHienTai + 1)
-    setLoading(false)
-  }
-
-  return (
-    <div className="min-h-screen bg-amber-50">
-      {/* Header */}
-      <div className="bg-red-800 text-white text-center py-6">
-        <h1 className="text-2xl font-bold">🎨 AI Art Assistant</h1>
-        <p className="text-amber-200 text-sm mt-1">Quy trình 5A SMART ART</p>
-      </div>
-
-      <div className="max-w-2xl mx-auto p-4">
-        {/* Chọn di sản */}
-        <div className="bg-white rounded-xl p-4 mb-4 shadow">
-          <p className="font-medium text-red-800 mb-2">🏛️ Chọn di sản muốn học:</p>
-          <div className="flex flex-wrap gap-2">
-            {DI_SAN.map(ds => (
-              <button key={ds} onClick={() => setDiSanChon(ds)}
-                className={`px-3 py-1 rounded-full text-sm border transition-all
-                  ${diSanChon === ds 
-                    ? 'bg-red-700 text-white border-red-700' 
-                    : 'bg-white text-red-700 border-red-300 hover:bg-red-50'}`}>
-                {ds}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Thanh tiến độ 5A */}
-        <div className="flex gap-1 mb-4">
-          {BUOC_5A.map((b, i) => (
-            <div key={b.key} className={`flex-1 rounded-lg p-2 text-center transition-all
-              ${i <= buocHienTai ? b.mau + ' text-white' : 'bg-gray-200 text-gray-400'}`}>
-              <div className="text-xs font-bold">{b.key}</div>
-              <div className="text-xs">{b.ten}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Khung chat */}
-        <div className="bg-white rounded-xl shadow overflow-hidden">
-          <div className="h-96 overflow-y-auto p-4 space-y-3">
-            {messages.length === 0 && (
-              <div className="text-center text-gray-400 mt-16">
-                <p className="text-4xl mb-2">🎨</p>
-                <p className="font-medium">Chọn di sản và bắt đầu chia sẻ ý tưởng!</p>
-                <p className="text-sm mt-1">AI sẽ hỗ trợ em theo quy trình 5A</p>
-              </div>
-            )}
-            {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl text-sm
-                  ${m.role === 'user' 
-                    ? 'bg-red-700 text-white rounded-br-none' 
-                    : 'bg-amber-50 text-gray-800 border border-amber-200 rounded-bl-none'}`}>
-                  {m.role === 'assistant' && <p className="text-xs text-amber-600 font-bold mb-1">🤖 AI Art Assistant</p>}
-                  {m.content}
-                </div>
-              </div>
-            ))}
-            {loading && (
-              <div className="flex justify-start">
-                <div className="bg-amber-50 border border-amber-200 px-4 py-2 rounded-2xl rounded-bl-none">
-                  <p className="text-xs text-amber-600">🤖 AI đang suy nghĩ...</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Input */}
-          <div className="border-t border-gray-100 p-3 flex gap-2">
-            <input value={input} onChange={e => setInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && guiTin()}
-              placeholder={diSanChon ? `Chia sẻ ý tưởng về ${diSanChon}...` : 'Chọn di sản trước nhé...'}
-              disabled={!diSanChon}
-              className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-400 disabled:bg-gray-50"/>
-            <button onClick={guiTin} disabled={!diSanChon || loading}
-              className="bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-red-800 disabled:bg-gray-300 transition-all">
-              Gửi
-            </button>
-          </div>
-        </div>
-
-        {/* Link về trang chủ */}
-        <a href="/" className="block text-center text-red-700 text-sm mt-4 hover:underline">
-          ← Về trang Kho Di Sản
-        </a>
-      </div>
-    </div>
-  )
+  const [heritageSlug, setHeritageSlug] = useState('')
+  const [active, setActive] = useState(0)
+  const [answers, setAnswers] = useState(['', '', '', '', ''])
+  const heritage = heritages.find((item) => item.slug === heritageSlug)
+  const guidance = useMemo(() => heritage ? [
+    `Hãy viết một thông điệp ngắn về ${heritage.name}: em muốn người xem cảm nhận hoặc hiểu điều gì?`,
+    `Dựa trên phần đã quan sát, chọn 2 yếu tố trong nhóm: ${heritage.artisticFocus}`,
+    `Từ ${heritage.name}, em có thể thử ba hướng: (1) poster giàu biểu tượng, (2) thiết kế ứng dụng từ mô-típ, hoặc (3) tranh kể chuyện bằng mảng màu và đường nét.`,
+    `Chọn một hướng; nêu điều em sẽ giữ từ di sản và điều em sẽ biến đổi để tác phẩm mang dấu ấn riêng.`,
+    `Hoàn thành câu: “Quyết định quan trọng nhất của em là… vì…”. Lưu lại phần này cùng phác thảo trong Portfolio.`
+  ] : steps.map((step) => step.hint), [heritage])
+  const next = () => setActive((value) => Math.min(value + 1, 4))
+  const previous = () => setActive((value) => Math.max(value - 1, 0))
+  return <main>
+    <header className="shell nav"><Link className="brand" href="/">SMART ART HERITAGE · V1.0</Link><Link className="button ghost" href="/ban-do">Kho di sản</Link></header>
+    <section className="page-head"><div className="shell"><div className="breadcrumbs">Kho di sản / Trợ lý 5A</div><div className="kicker">Gợi mở sáng tạo có trách nhiệm</div><h1>Trợ lý 5A<br/>không làm bài thay em.</h1><p className="lead">Trợ lý này giúp em đi từ quan sát đến ý tưởng bằng câu hỏi và phương án gợi ý. Mọi lựa chọn tạo hình vẫn do em quyết định.</p></div></section>
+    <section className="content"><div className="shell two-col"><div><div className="panel"><div className="kicker">Chọn hồ sơ di sản</div><h2>Điểm xuất phát của ý tưởng</h2><div className="heritage-picker">{heritages.map((item) => <button type="button" onClick={() => { setHeritageSlug(item.slug); setActive(0); }} className={heritageSlug === item.slug ? 'selected' : ''} key={item.slug}>{item.code} · {item.name}</button>)}</div></div>
+        <div className="panel" style={{ marginTop: 20 }}><div className="stepper">{steps.map((step, index) => <button type="button" key={step.key} onClick={() => setActive(index)} className={index === active ? 'current' : index < active ? 'done' : ''}><b>{step.key}</b><span>{step.name}</span></button>)}</div><div className="guided-step"><div className="heritage-code">{steps[active].key} · {steps[active].name}</div><h2>{steps[active].hint}</h2><div className="guidance"><b>Gợi ý cho em</b><p>{guidance[active]}</p></div><div className="form-field"><label>Phần trả lời/ghi chú của em</label><textarea value={answers[active]} onChange={(event) => setAnswers((all) => all.map((value, index) => index === active ? event.target.value : value))} placeholder="Viết bằng lời của em; không cần câu trả lời hoàn hảo..." /></div><div className="step-actions"><button className="button ghost" type="button" onClick={previous} disabled={active === 0}>← Bước trước</button>{active < 4 ? <button className="button" type="button" onClick={next}>Bước tiếp theo →</button> : <Link className="button" href={`/portfolio?heritage=${heritageSlug}`}>Đưa ý tưởng vào Portfolio →</Link>}</div></div></div></div>
+      <aside><div className="panel"><div className="kicker">Nguyên tắc sử dụng</div><h2>AI chỉ gợi mở</h2><ul className="checklist"><li><b>1.</b> Dùng căn cứ từ ảnh/Hotspot đã quan sát.</li><li><b>2.</b> Chọn hoặc từ chối gợi ý bằng lý do của em.</li><li><b>3.</b> Tự phác thảo và tự quyết định tác phẩm.</li></ul><p className="small">Bản V1 là trợ lý hướng dẫn theo quy trình 5A, không lưu hội thoại và không dùng API AI trả phí. Chức năng AI có lưu vết là hạng mục mở rộng.</p></div></aside>
+    </div></section>
+  </main>
 }
