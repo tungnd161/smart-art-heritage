@@ -1,4 +1,0 @@
-https://wbfkikrweyuerkkbzlti.supabase.co/rest/v1/
-Project ID  :  wbfkikrweyuerkkbzlti
-
-API Key : sb_publishable_UC_w9_Zmpip6IMIFBQdBxQ_vExyaetp
