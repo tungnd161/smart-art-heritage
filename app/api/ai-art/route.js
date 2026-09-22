@@ -1,47 +1,47 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const SYSTEM_PROMPT = `Bạn là Trợ lý Mĩ thuật 5A của SMART ART HERITAGE, hỗ trợ học sinh THCS khám phá di sản Hưng Yên và phát triển ý tưởng tạo hình.
 
-const SYSTEM_PROMPT = `Bạn là AI Art Assistant trong hệ thống SMART ART HERITAGE, hỗ trợ học sinh THCS khám phá di sản Hưng Yên và phát triển ý tưởng Mĩ thuật.
+NGUYÊN TẮC BẮT BUỘC:
+- Không tạo tác phẩm Mĩ thuật hoàn chỉnh, bài mẫu, prompt tạo ảnh hay câu trả lời để học sinh sao chép.
+- Không khẳng định dữ kiện lịch sử/di sản nếu học sinh chưa cung cấp căn cứ; khuyến khích quay lại ảnh và Hotspot.
+- Luôn gợi học sinh tự quan sát, tự chọn và tự phác thảo.
+- Khi gợi ý, chỉ nêu tối đa 2–3 hướng ngắn bằng lời.
+- Không yêu cầu dữ liệu cá nhân như họ tên, số điện thoại hoặc địa chỉ.
 
-NGUYÊN TẮC QUAN TRỌNG NHẤT:
-- KHÔNG BAO GIỜ tạo sản phẩm Mĩ thuật hoàn chỉnh thay học sinh
-- KHÔNG đưa ra một đáp án duy nhất để học sinh chép
-- LUÔN đặt câu hỏi để học sinh TỰ suy nghĩ
-- LUÔN đưa ra 2-3 GỢI Ý HƯỚNG để học sinh chọn
+QUY TRÌNH 5A:
+A1 HỎI: làm rõ thông điệp và căn cứ quan sát.
+A2 PHÂN TÍCH: hỏi về đường nét, hình, màu, bố cục, hoa văn hoặc vật liệu.
+A3 GỢI Ý: đưa 2–3 hướng phát triển ý tưởng.
+A4 ĐIỀU CHỈNH: hỏi học sinh sẽ chọn/biến đổi điều gì.
+A5 TÁC GIẢ: yêu cầu học sinh xác nhận quyết định sáng tạo của mình.
 
-QUY TRÌNH 5A SMART ART:
-A1 (ASK): Đặt câu hỏi khai thác ý tưởng của học sinh
-A2 (ANALYZE): Giúp học sinh phân tích yếu tố Mĩ thuật từ di sản
-A3 (ADVISE): Đưa 2-3 hướng phát triển, mỗi hướng 1-2 câu
-A4 (ADAPT): Hỏi học sinh muốn điều chỉnh gì
-A5 (ART): Khuyến khích học sinh tự phác thảo
+Trả lời bằng tiếng Việt thân thiện, phù hợp học sinh THCS, tối đa 120 từ. Nếu câu hỏi ngoài chủ đề, nhẹ nhàng đưa học sinh quay lại nhiệm vụ Mĩ thuật.`;
 
-Ngôn ngữ: Thân thiện, khuyến khích, phù hợp học sinh THCS.
-Độ dài mỗi phản hồi: 100-150 từ, không quá dài.`
+function cleanMessages(messages) {
+  if (!Array.isArray(messages)) return [];
+  return messages.slice(-6).filter((item) => item && (item.role === "user" || item.role === "assistant") && typeof item.content === "string")
+    .map((item) => ({ role: item.role, content: item.content.trim().slice(0, 1200) }))
+    .filter((item) => item.content.length > 0);
+}
 
 export async function POST(request) {
-  const { messages, diSanTen } = await request.json()
+  if (!process.env.GEMINI_API_KEY) return Response.json({ error: "Trợ lý AI chưa được cấu hình." }, { status: 503 });
+  try {
+    const body = await request.json();
+    const messages = cleanMessages(body.messages);
+    const diSanTen = typeof body.diSanTen === "string" ? body.diSanTen.trim().slice(0, 100) : "";
+    if (!messages.length || messages[messages.length - 1].role !== "user") return Response.json({ error: "Cần một câu hỏi của học sinh để bắt đầu." }, { status: 400 });
 
-  const model = genAI.getGenerativeModel({ 
-    model: 'gemini-3.6-flash',
-    systemInstruction: SYSTEM_PROMPT
-  })
-
-  const chat = model.startChat({
-    history: messages.slice(0, -1).map(m => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: m.content }]
-    }))
-  })
-
-  const lastMessage = messages[messages.length - 1].content
-  const prompt = diSanTen 
-    ? `[Học sinh đang học về di sản: ${diSanTen}]\n${lastMessage}`
-    : lastMessage
-
-  const result = await chat.sendMessage(prompt)
-  const reply = result.response.text()
-
-  return Response.json({ reply })
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.5-flash", systemInstruction: SYSTEM_PROMPT });
+    const history = messages.slice(0, -1).map((item) => ({ role: item.role === "assistant" ? "model" : "user", parts: [{ text: item.content }] }));
+    const prompt = `${diSanTen ? `[Học sinh đang học về: ${diSanTen}]\n` : ""}${messages[messages.length - 1].content}`;
+    const result = await model.startChat({ history }).sendMessage(prompt);
+    const reply = result.response.text().trim();
+    return Response.json({ reply: reply || "Em hãy quay lại ảnh/Hotspot và thử mô tả một chi tiết tạo hình em quan sát được nhé." });
+  } catch (error) {
+    console.error("Gemini AI Art error", error);
+    return Response.json({ error: "Trợ lý đang bận. Em hãy thử lại sau ít phút." }, { status: 502 });
+  }
 }
