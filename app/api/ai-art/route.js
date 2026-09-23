@@ -34,7 +34,7 @@ export async function POST(request) {
     if (!messages.length || messages[messages.length - 1].role !== "user") return Response.json({ error: "Cần một câu hỏi của học sinh để bắt đầu." }, { status: 400 });
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.5-flash", systemInstruction: SYSTEM_PROMPT });
+    const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-3.6-flash", systemInstruction: SYSTEM_PROMPT });
     const history = messages.slice(0, -1).map((item) => ({ role: item.role === "assistant" ? "model" : "user", parts: [{ text: item.content }] }));
     const prompt = `${diSanTen ? `[Học sinh đang học về: ${diSanTen}]\n` : ""}${messages[messages.length - 1].content}`;
     const result = await model.startChat({ history }).sendMessage(prompt);
@@ -42,8 +42,7 @@ export async function POST(request) {
     return Response.json({ reply: reply || "Em hãy quay lại ảnh/Hotspot và thử mô tả một chi tiết tạo hình em quan sát được nhé." });
   } catch (error) {
     const providerStatus = Number(error?.status || error?.response?.status) || 502;
-    const providerMessage = String(error?.message || "").replace(/AIza[\w-]+/g, "[redacted]").slice(0, 500);
-    console.error("Gemini AI Art error", { providerStatus, providerMessage });
-    return Response.json({ error: "Trợ lý đang bận. Em hãy thử lại sau ít phút.", diagnostic: { providerStatus, providerMessage } }, { status: 502 });
+    console.error("Gemini AI Art error", { providerStatus, providerMessage: String(error?.message || "").replace(/AIza[\w-]+/g, "[redacted]").slice(0, 500) });
+    return Response.json({ error: "Trợ lý đang bận. Em hãy thử lại sau ít phút." }, { status: 502 });
   }
 }
