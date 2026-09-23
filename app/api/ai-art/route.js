@@ -42,8 +42,7 @@ export async function POST(request) {
     return Response.json({ reply: reply || "Em hãy quay lại ảnh/Hotspot và thử mô tả một chi tiết tạo hình em quan sát được nhé." });
   } catch (error) {
     const providerStatus = Number(error?.status || error?.response?.status) || 502;
-    const providerMessage = String(error?.message || "").replace(/AIza[\w-]+/g, "[redacted]").slice(0, 500);
-    console.error("Gemini AI Art error", { providerStatus, providerMessage });
-    return Response.json({ error: "Trợ lý đang bận. Em hãy thử lại sau ít phút.", diagnostic: { providerStatus, providerMessage } }, { status: 502 });
+    console.error("Gemini AI Art error", { providerStatus, providerMessage: String(error?.message || "").replace(/AIza[\w-]+/g, "[redacted]").slice(0, 500) });
+    return Response.json({ error: "Trợ lý đang bận. Em hãy thử lại sau ít phút." }, { status: 502 });
   }
 }
