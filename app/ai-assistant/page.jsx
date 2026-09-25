@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { heritages } from '@/lib/heritage'
 
 const steps = [
@@ -18,6 +18,15 @@ export default function AIAssistant() {
   const [answers, setAnswers] = useState(['', '', '', '', ''])
   const [aiReply, setAiReply] = useState('')
   const [asking, setAsking] = useState(false)
+  useEffect(() => {
+    const selected = new URLSearchParams(window.location.search).get('heritage')
+    if (!selected || !heritages.some((item) => item.slug === selected)) return
+    setHeritageSlug(selected)
+    try {
+      const seed = window.localStorage.getItem(`smart-art-ai5a-seed-${selected}`) || ''
+      if (seed.trim()) setAnswers((current) => current.map((value, index) => index === 0 && !value ? seed : value))
+    } catch {}
+  }, [])
   const heritage = heritages.find((item) => item.slug === heritageSlug)
   const guidance = useMemo(() => heritage ? [
     `Hãy viết một thông điệp ngắn về ${heritage.name}: em muốn người xem cảm nhận hoặc hiểu điều gì?`,
