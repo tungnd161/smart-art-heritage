@@ -4,55 +4,31 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { heritages } from '@/lib/heritage'
 
-const steps = [
-  { key: 'A1', name: 'Hỏi', hint: 'Em muốn kể điều gì về di sản?' },
-  { key: 'A2', name: 'Phân tích', hint: 'Chọn chi tiết tạo hình làm căn cứ.' },
-  { key: 'A3', name: 'Gợi ý', hint: 'Khám phá các hướng thể hiện.' },
-  { key: 'A4', name: 'Điều chỉnh', hint: 'Chọn, biến đổi và lập kế hoạch.' },
-  { key: 'A5', name: 'Tác giả', hint: 'Xác nhận quyết định sáng tạo của em.' },
-]
+const keys = ['a1','a2','a3','a4','a5']
+const empty = { seed:'', image:'', detail:'', feeling:'', ask1:'', ask2:'', ask3:'', path:'', reason:'', main:'', layout:'', color:'', technique:'', change:'', title:'', inspiration:'', kept:'', message:'', signature:'', aiHelp:'', decision:'', confirmed:false }
+const labels = [['A1','ANALYZE · AI soi ý tưởng'],['A2','ASK · AI hỏi ngược'],['A3','ADVISE · Ba con đường sáng tạo'],['A4','ADAPT · Bản thiết kế của em'],['A5','AUTHOR · Dấu ấn của tôi']]
 
-export default function AIAssistant() {
-  const [heritageSlug, setHeritageSlug] = useState('')
-  const [active, setActive] = useState(0)
-  const [answers, setAnswers] = useState(['', '', '', '', ''])
-  const [aiReply, setAiReply] = useState('')
-  const [asking, setAsking] = useState(false)
-  useEffect(() => {
-    const selected = new URLSearchParams(window.location.search).get('heritage')
-    if (!selected || !heritages.some((item) => item.slug === selected)) return
-    setHeritageSlug(selected)
-    try {
-      const seed = window.localStorage.getItem(`smart-art-ai5a-seed-${selected}`) || ''
-      if (seed.trim()) setAnswers((current) => current.map((value, index) => index === 0 && !value ? seed : value))
-    } catch {}
-  }, [])
-  const heritage = heritages.find((item) => item.slug === heritageSlug)
-  const guidance = useMemo(() => heritage ? [
-    `Hãy viết một thông điệp ngắn về ${heritage.name}: em muốn người xem cảm nhận hoặc hiểu điều gì?`,
-    `Dựa trên phần đã quan sát, chọn 2 yếu tố trong nhóm: ${heritage.artisticFocus}`,
-    `Từ ${heritage.name}, em có thể thử ba hướng: (1) poster giàu biểu tượng, (2) thiết kế ứng dụng từ mô-típ, hoặc (3) tranh kể chuyện bằng mảng màu và đường nét.`,
-    `Chọn một hướng; nêu điều em sẽ giữ từ di sản và điều em sẽ biến đổi để tác phẩm mang dấu ấn riêng.`,
-    `Hoàn thành câu: “Quyết định quan trọng nhất của em là… vì…”. Lưu lại phần này cùng phác thảo trong Portfolio.`
-  ] : steps.map((step) => step.hint), [heritage])
-  const next = () => setActive((value) => Math.min(value + 1, 4))
-  const previous = () => setActive((value) => Math.max(value - 1, 0))
-  const askAssistant = async () => {
-    if (!heritage || !answers[active].trim() || asking) return
-    setAsking(true); setAiReply('')
-    try {
-      const previousAnswers = answers.slice(0, active).filter(Boolean).map((content) => ({ role: 'user', content }))
-      const response = await fetch('/api/ai-art', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ diSanTen: heritage.name, messages: [...previousAnswers, { role: 'user', content: answers[active] }] }) })
-      const data = await response.json()
-      setAiReply(data.reply || data.error || 'Trợ lý chưa thể phản hồi lúc này.')
-    } catch { setAiReply('Không thể kết nối Trợ lý lúc này. Em hãy thử lại sau.') } finally { setAsking(false) }
-  }
-  return <main>
-    <header className="shell nav"><Link className="brand" href="/">SMART ART HERITAGE · V1.0</Link><Link className="button ghost" href="/ban-do">Kho di sản</Link></header>
-    <section className="page-head"><div className="shell"><div className="breadcrumbs">Kho di sản / Trợ lý 5A</div><div className="kicker">Gợi mở sáng tạo có trách nhiệm</div><h1>Trợ lý 5A<br/>không làm bài thay em.</h1><p className="lead">Trợ lý này giúp em đi từ quan sát đến ý tưởng bằng câu hỏi và phương án gợi ý. Mọi lựa chọn tạo hình vẫn do em quyết định.</p></div></section>
-    <section className="content"><div className="shell two-col"><div><div className="panel"><div className="kicker">Chọn hồ sơ di sản</div><h2>Điểm xuất phát của ý tưởng</h2><div className="heritage-picker">{heritages.map((item) => <button type="button" onClick={() => { setHeritageSlug(item.slug); setActive(0); }} className={heritageSlug === item.slug ? 'selected' : ''} key={item.slug}>{item.code} · {item.name}</button>)}</div></div>
-        <div className="panel" style={{ marginTop: 20 }}><div className="stepper">{steps.map((step, index) => <button type="button" key={step.key} onClick={() => setActive(index)} className={index === active ? 'current' : index < active ? 'done' : ''}><b>{step.key}</b><span>{step.name}</span></button>)}</div><div className="guided-step"><div className="heritage-code">{steps[active].key} · {steps[active].name}</div><h2>{steps[active].hint}</h2><div className="guidance"><b>Gợi ý cho em</b><p>{guidance[active]}</p></div><div className="form-field"><label>Phần trả lời/ghi chú của em</label><textarea value={answers[active]} onChange={(event) => setAnswers((all) => all.map((value, index) => index === active ? event.target.value : value))} placeholder="Viết bằng lời của em; không cần câu trả lời hoàn hảo..." /></div><button className="button ghost" type="button" onClick={askAssistant} disabled={!heritage || !answers[active].trim() || asking}>{asking ? 'Trợ lý đang suy nghĩ…' : 'Nhận gợi ý từ Trợ lý 5A'}</button>{aiReply && <div className="ai-reply"><b>Trợ lý 5A gợi mở</b><p>{aiReply}</p></div>}<div className="step-actions"><button className="button ghost" type="button" onClick={previous} disabled={active === 0}>← Bước trước</button>{active < 4 ? <button className="button" type="button" onClick={next}>Bước tiếp theo →</button> : <Link className="button" href={`/portfolio?heritage=${heritageSlug}`}>Đưa ý tưởng vào Portfolio →</Link>}</div></div></div></div>
-      <aside><div className="panel"><div className="kicker">Nguyên tắc sử dụng</div><h2>AI chỉ gợi mở</h2><ul className="checklist"><li><b>1.</b> Dùng căn cứ từ ảnh/Hotspot đã quan sát.</li><li><b>2.</b> Chọn hoặc từ chối gợi ý bằng lý do của em.</li><li><b>3.</b> Tự phác thảo và tự quyết định tác phẩm.</li></ul><p className="small">Bản V1 là trợ lý hướng dẫn theo quy trình 5A, không lưu hội thoại và không dùng API AI trả phí. Chức năng AI có lưu vết là hạng mục mở rộng.</p></div></aside>
-    </div></section>
-  </main>
+export default function AIAssistant(){
+ const [slug,setSlug]=useState('pho-hien'),[form,setForm]=useState(empty),[open,setOpen]=useState('image'),[notice,setNotice]=useState(''),[saved,setSaved]=useState(false)
+ const heritage=heritages.find(x=>x.slug===slug)
+ useEffect(()=>{const query=new URLSearchParams(window.location.search).get('heritage');if(query&&heritages.some(x=>x.slug===query))setSlug(query)},[])
+ useEffect(()=>{try{const old=JSON.parse(localStorage.getItem(`smart-art-ai5a-v32-${slug}`)||'{}');const seed=localStorage.getItem(`smart-art-ai5a-seed-${slug}`)||'';setForm({...empty,...old,seed:old.seed||seed})}catch{setForm(empty)}setSaved(false)},[slug])
+ const update=(key,value)=>setForm(x=>({...x,[key]:value}))
+ const persist=()=>{localStorage.setItem(`smart-art-ai5a-v32-${slug}`,JSON.stringify(form));setNotice('✓ Đã lưu hành trình 5A trên thiết bị này.');setSaved(true)}
+ const directions=useMemo(()=>heritage?[['Giữ hồn di sản',`Giữ một chi tiết nổi bật của ${heritage.name} làm trung tâm, nhấn nhịp điệu và cảm giác nguyên gốc.`],['Di sản qua mắt em','Chọn một góc nhìn hoặc chi tiết em yêu thích, phóng đại để kể cảm nhận cá nhân.'],['Di sản bước vào hôm nay','Biến hình ảnh di sản thành poster, bìa sách, bao bì hoặc hoạ tiết cho đời sống hôm nay.']]:[],[heritage])
+ const toPortfolio=()=>{persist();localStorage.setItem('smart-art-creative-passport',JSON.stringify({...form,heritage:slug,heritageName:heritage?.name}));window.location.href=`/portfolio?heritage=${slug}&passport=1`}
+ return <main className="ai5a-v32"><header className="ai5a-top"><Link href="/" className="ai5a-logo">✦ SMART ART HERITAGE <b>V2.1</b></Link><span>5 HỒ SƠ · HOTSPOT THCS · 3 BƯỚC</span></header><section className="ai5a-shell">
+  <div className="ai5a-head"><div><div className="ai5a-kicker">BƯỚC 5 · XƯỞNG ĐỐI THOẠI SÁNG TẠO</div><h1>AI 5A · Từ quan sát đến dấu ấn cá nhân</h1><p>AI không đưa “đáp án đẹp nhất”. AI đặt câu hỏi, mở hướng và giúp em tự quyết định.</p></div><aside><b>QUYỀN SỞ HỮU Ý TƯỞNG</b><span>● Học sinh: Chủ thể sáng tạo</span><span>● AI: Trợ lý gợi mở</span></aside></div>
+  <nav className="ai5a-steps">{labels.map(([code,name])=><a href={`#${code.toLowerCase()}`} key={code}><b>{code}</b>{name.split(' · ')[0]}</a>)}</nav>
+  <label className="ai5a-project">Dự án di sản<select value={slug} onChange={e=>setSlug(e.target.value)}>{heritages.map(x=><option value={x.slug} key={x.slug}>{x.name}</option>)}</select></label>
+  <div className="ai5a-reading"><b>◉ AI 5A đang đọc mạch khám phá</b><span>Gói 1 · {heritage?.name}. AI chỉ tổng hợp những gì em đã quan sát và viết, không tạo đáp án.</span></div>
+  <section className="ai5a-seed"><b>🌱 Hạt giống ý tưởng từ Phiếu 3–2–1</b><small>Ý tưởng của em được mang sang đây, không phải làm lại từ đầu.</small><textarea value={form.seed} onChange={e=>update('seed',e.target.value)} placeholder="Ý tưởng ở câu 1 của Phiếu 3–2–1..."/><button type="button" onClick={()=>update('seed',localStorage.getItem(`smart-art-ai5a-seed-${slug}`)||'')}>↻ Lấy ý tưởng đã lưu</button></section>
+  <Stage id="a1" code="A1" title="🔎 ANALYZE · AI soi ý tưởng" text="Nhìn lại ý tưởng 3–2–1 và chọn căn cứ quan sát để phát triển."><p className="ai5a-intro">Chọn 1 hình ảnh chính, 1 nét riêng của di sản và 1 cảm xúc/thông điệp em muốn giữ.</p>{[['image','🖼 Hình ảnh chính','Hình ảnh hoặc chi tiết nào sẽ là trung tâm tác phẩm?'],['detail','🏛 Nét riêng của di sản','Chi tiết nào khiến người xem nhận ra di sản này?'],['feeling','♥ Cảm xúc / thông điệp','Em muốn người xem cảm nhận điều gì?']].map(([key,label,prompt])=><div className="ai5a-fold" key={key}><button type="button" onClick={()=>setOpen(open===key?'':key)}>{label}<i>{open===key?'Thu câu hỏi':'Mở câu hỏi'}</i></button>{open===key&&<><p>{prompt}</p><textarea value={form[key]} onChange={e=>update(key,e.target.value)} placeholder="Viết bằng lời của em..."/></>}</div>)}<div className="ai5a-analysis"><b>✨ BẢN PHÂN TÍCH Ý TƯỞNG A1</b><small>Hệ thống tự tổng hợp từ phần em viết.</small><p>{[form.image,form.detail,form.feeling].filter(Boolean).join(' · ')||'Em chưa nhập nội dung A1.'}</p></div></Stage>
+  <Stage id="a2" code="A2" title="💬 ASK · AI hỏi ngược" text="Ba câu hỏi để em đối thoại với ý tưởng từ di sản.">{[['ask1',`Nếu chỉ được giữ lại một chi tiết để người xem nhận ra ${heritage?.name}, em sẽ chọn chi tiết nào? Vì sao?`],['ask2',`Em muốn người xem cảm nhận ${heritage?.name} là cổ kính, bình yên, sầm uất xưa hay theo một cảm xúc khác?`],['ask3','Em sẽ thay đổi góc nhìn, màu sắc hoặc cách sắp xếp thế nào để sản phẩm có dấu ấn riêng?']].map(([key,q],i)=><div className="ai5a-question" key={key}><b>Câu {i+1}</b><p>{q}</p><textarea value={form[key]} onChange={e=>update(key,e.target.value)} placeholder="Suy nghĩ của em..."/><details><summary>💡 Cần trợ giúp? Mở gợi ý</summary><p>Hãy trở lại ảnh Hotspot, chọn một chi tiết em thực sự quan sát được rồi giải thích bằng cảm nhận riêng.</p></details></div>)}</Stage>
+  <Stage id="a3" code="A3" title="💡 ADVISE · Ba con đường sáng tạo" text="Chọn một hướng, kết hợp nhiều hướng hoặc tự mở một hướng thứ tư."><div className="ai5a-directions">{directions.map(([title,desc],i)=><button className={form.path===String(i)?'selected':''} type="button" onClick={()=>update('path',String(i))} key={title}><b>Hướng {i+1} · {title}</b><span>{desc}</span><small>Chạm để chọn/bỏ chọn</small></button>)}</div><button className="ai5a-own-path" type="button" onClick={()=>update('path','own')}>✨ Tôi muốn tự tạo hướng thứ 4</button><label>Điều em quyết định chọn/không chọn từ gợi ý của AI<textarea value={form.reason} onChange={e=>update('reason',e.target.value)} placeholder="Em chọn... vì... / Em không chọn... vì..."/></label></Stage>
+  <Stage id="a4" code="A4" title="🎨 ADAPT · Bản thiết kế của em" text="Chọn nhanh rồi sửa lại để thành phương án riêng."><div className="ai5a-choice-grid">{[['main','Hình ảnh chính',['Kiến trúc','Hoa văn','Nhân vật','Hiện vật','Khác']],['layout','Bố cục',['Trung tâm','Đối xứng','Tự do','Nhịp điệu']],['color','Màu sắc',['Theo màu di sản','Tương phản','Đơn sắc','Tự chọn']],['technique','Kỹ thuật',['Vẽ','Cắt dán','In','Thiết kế số','Kết hợp']]].map(([key,title,options])=><fieldset key={key}><legend>{title}</legend>{options.map(x=><button type="button" className={form[key]===x?'selected':''} onClick={()=>update(key,x)} key={x}>{x}</button>)}</fieldset>)}</div><label>Điều tôi thay đổi so với gợi ý của AI<textarea value={form.change} onChange={e=>update('change',e.target.value)} placeholder="Em đã biến đổi điều gì để sản phẩm mang dấu ấn riêng?"/></label></Stage>
+  <Stage id="a5" code="A5" title="⭐ AUTHOR · Dấu ấn của tôi" text="Hoàn thiện Hộ chiếu sáng tạo để xác nhận phương án trước khi phác thảo."><div className="creative-passport"><header><span>SMART ART HERITAGE</span><b>HỘ CHIẾU SÁNG TẠO · CREATIVE PASSPORT</b></header><div className="passport-grid"><Field label="Di sản" value={heritage?.name||''} readOnly/><Field label="Tên tác phẩm" value={form.title} set={v=>update('title',v)} placeholder="Tên em đặt cho tác phẩm"/><Field label="Nguồn cảm hứng" value={form.inspiration} set={v=>update('inspiration',v)}/><Field label="Chi tiết di sản tôi giữ" value={form.kept} set={v=>update('kept',v)}/><Field label="Điều tôi biến đổi" value={form.change} set={v=>update('change',v)}/><Field label="Bố cục" value={form.layout} set={v=>update('layout',v)}/><Field label="Màu sắc" value={form.color} set={v=>update('color',v)}/><Field label="Chất liệu/kỹ thuật" value={form.technique} set={v=>update('technique',v)}/></div><Field label="Thông điệp" value={form.message} set={v=>update('message',v)} wide/><Field label="Dấu ấn riêng của tôi" value={form.signature} set={v=>update('signature',v)} wide/><Field label="AI đã giúp tôi" value={form.aiHelp||'AI gợi mở câu hỏi, tổng hợp ý và đề xuất các hướng sáng tạo.'} set={v=>update('aiHelp',v)} wide/><Field label="Quyết định sáng tạo của tôi" value={form.decision} set={v=>update('decision',v)} wide/></div><label className="ai5a-confirm"><input type="checkbox" checked={form.confirmed} onChange={e=>update('confirmed',e.target.checked)}/> Tôi xác nhận đây là phương án do tôi lựa chọn và phát triển.</label><div className="ai5a-actions"><button type="button" onClick={persist}>💾 Lưu Hộ chiếu sáng tạo</button><button type="button" className="primary" disabled={!form.confirmed} onClick={toPortfolio}>✓ XÁC NHẬN Ý TƯỞNG CỦA TÔI → ✎ PHÁC THẢO</button><span>{notice}</span></div></Stage>
+ </section></main>
 }
+function Stage({id,code,title,text,children}){return <section id={id} className="ai5a-stage"><div className="ai5a-stage-code">{code}</div><div className="ai5a-stage-content"><h2>{title}</h2><p>{text}</p>{children}</div></section>}
+function Field({label,value,set,wide,readOnly,placeholder}){return <label className={wide?'passport-wide':''}>{label}<input value={value} readOnly={readOnly} onChange={e=>set?.(e.target.value)} placeholder={placeholder||''}/></label>}
