@@ -6,14 +6,14 @@ import { useState } from "react";
 
 const modules = [
   { no: "01", title: "Trang chủ", short: "Điểm vào dự án", href: "/", icon: "⌂", image: "/heritages/pho-hien/01.jpg", tone: "blue" },
-  { no: "02", title: "Bản đồ di sản", short: "Khám phá Hưng Yên", href: "/ban-do", icon: "⌖", tone: "green" },
-  { no: "03", title: "05 cụm di sản", short: "Kho học liệu địa phương", href: "/ban-do", icon: "◈", tone: "orange" },
+  { no: "02", title: "Bản đồ di sản", short: "Khám phá Hưng Yên", href: "/ban-do", icon: "⌖", image: "/heritages/le-quy-don/03.jpg", tone: "green" },
+  { no: "03", title: "05 cụm di sản", short: "Kho học liệu địa phương", href: "/ban-do", icon: "◈", image: "/heritages/dong-xam/02.jpg", tone: "orange" },
   { no: "04", title: "Hồ sơ khám phá", short: "Quan sát · Hotspot · 3–2–1", href: "/di-san/pho-hien", icon: "▤", image: "/heritages/chua-keo/02.jpg", tone: "purple" },
   { no: "05", title: "Không gian trực quan", short: "Ảnh, hotspot & góc nhìn tạo hình", href: "/di-san/pho-hien", icon: "◉", image: "/heritages/den-tran/03.jpg", tone: "teal" },
-  { no: "06", title: "AI Art Assistant · 5A", short: "AI gợi mở, học sinh quyết định", href: "/ai-assistant", icon: "✦", tone: "cyan" },
-  { no: "07", title: "Xưởng sáng tạo", short: "Ý tưởng · Phác thảo · Tác phẩm", href: "/portfolio", icon: "✎", tone: "pink" },
-  { no: "08", title: "Gallery & QR", short: "Trưng bày tác phẩm có phê duyệt", href: "/gallery", icon: "▧", tone: "amber" },
-  { no: "09", title: "Phản tư & Portfolio", short: "Minh chứng quá trình học tập", href: "/portfolio", icon: "✓", tone: "lime" },
+  { no: "06", title: "AI Art Assistant · 5A", short: "AI gợi mở, học sinh quyết định", href: "/ai-assistant", icon: "✦", image: "/heritages/chua-keo/04.jpg", tone: "cyan" },
+  { no: "07", title: "Xưởng sáng tạo", short: "Ý tưởng · Phác thảo · Tác phẩm", href: "/portfolio", icon: "✎", image: "/heritages/den-tran/06.jpg", tone: "pink" },
+  { no: "08", title: "Gallery & QR", short: "Trưng bày tác phẩm có phê duyệt", href: "/gallery", icon: "▧", image: "/heritages/le-quy-don/07.jpg", tone: "amber" },
+  { no: "09", title: "Phản tư & Portfolio", short: "Minh chứng quá trình học tập", href: "/portfolio", icon: "✓", image: "/heritages/dong-xam/06.jpg", tone: "lime" },
 ];
 
 const journey = ["Khám phá di sản", "Quan sát & phân tích", "Gợi ý ý tưởng 5A", "Sáng tạo & thực hành", "Triển lãm", "Phản tư"];
