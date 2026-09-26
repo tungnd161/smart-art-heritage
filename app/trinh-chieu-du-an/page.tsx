@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 
 const Icon = ({name, className = ""}:{name:string;className?:string}) => <svg className={`system-icon ${className}`} viewBox="0 0 48 48" aria-hidden="true"><use href={`/system-icons.svg#${name}`}/></svg>;
@@ -32,7 +33,7 @@ export default function PresentationPage() {
    <div className="system-flow top">{modules.slice(0,6).map((item,i)=><div className="system-node" key={item.no}><Node item={item} active={active===item.no} onHover={()=>setActive(item.no)}/>{i<5&&<div className="system-arrow">→</div>}</div>)}</div>
    <div className="turn-arrow"><span>↓</span><i></i><span>←</span></div>
    <div className="system-flow bottom">{modules.slice(6).map((item,i)=><div className="system-node" key={item.no}><Node item={item} active={active===item.no} onHover={()=>setActive(item.no)}/>{i<2&&<div className="system-arrow">→</div>}</div>)}<TeacherDemo/></div>
-   <footer className="system-infographic-footer"><FooterBlock title="05 KHU DI SẢN TRỌNG ĐIỂM"><div className="heritage-dots">{heritageNames.map((name,i)=><span key={name}><b>{i+1}</b>{name}</span>)}</div></FooterBlock><FooterBlock title="CHỨC NĂNG CHÍNH"><ul><li><Icon name="search"/>Khám phá di sản · Hotspot · 3–2–1</li><li><Icon name="bot"/>AI 5A gợi ý, học sinh là tác giả</li><li><Icon name="palette"/>Xưởng sáng tạo · Portfolio · phản tư</li></ul></FooterBlock><FooterBlock title="THIẾT BỊ HỖ TRỢ"><div className="device-icons"><b><Icon name="desktop"/></b><b><Icon name="tablet"/></b><b><Icon name="phone"/></b></div><p>Máy tính · Máy tính bảng · Điện thoại</p></FooterBlock><FooterBlock title="GIÁ TRỊ MANG LẠI"><ul className="ticks"><li><Icon name="check"/>Gắn kết học sinh với di sản địa phương</li><li><Icon name="check"/>Phát triển năng lực thẩm mĩ và sáng tạo</li><li><Icon name="check"/>Công nghệ có kiểm soát, học sinh là tác giả</li></ul></FooterBlock><FooterBlock title="TRẢI NGHIỆM NGAY"><div className="qr-demo"><Icon name="qr"/></div><p>Quét QR để vào SMART ART HERITAGE</p></FooterBlock></footer>
+   <footer className="system-infographic-footer"><FooterBlock title="05 KHU DI SẢN TRỌNG ĐIỂM"><div className="heritage-dots">{heritageNames.map((name,i)=><span key={name}><b>{i+1}</b>{name}</span>)}</div></FooterBlock><FooterBlock title="CHỨC NĂNG CHÍNH"><ul><li><Icon name="search"/>Khám phá di sản · Hotspot · 3–2–1</li><li><Icon name="bot"/>AI 5A gợi ý, học sinh là tác giả</li><li><Icon name="palette"/>Xưởng sáng tạo · Portfolio · phản tư</li></ul></FooterBlock><FooterBlock title="THIẾT BỊ HỖ TRỢ"><div className="device-icons"><b><Icon name="desktop"/></b><b><Icon name="tablet"/></b><b><Icon name="phone"/></b></div><p>Máy tính · Máy tính bảng · Điện thoại</p></FooterBlock><FooterBlock title="GIÁ TRỊ MANG LẠI"><ul className="ticks"><li><Icon name="check"/>Gắn kết học sinh với di sản địa phương</li><li><Icon name="check"/>Phát triển năng lực thẩm mĩ và sáng tạo</li><li><Icon name="check"/>Công nghệ có kiểm soát, học sinh là tác giả</li></ul></FooterBlock><FooterBlock title="TRẢI NGHIỆM NGAY"><div className="qr-demo"><Image src="/qr/smart-art-gallery.png" alt="Mã QR dẫn đến Gallery SMART ART HERITAGE" fill sizes="84px"/></div><p>Quét QR để vào SMART ART HERITAGE</p></FooterBlock></footer>
   </section>
  </main>;
 }
